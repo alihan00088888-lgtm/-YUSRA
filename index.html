@@ -140,12 +140,14 @@
     let withVznos = true;
     let lastCalcData = {};
     
+    // Тарифы от 20 000 ₽
     const ratesHigh = { 
         2: {withV: 11, noV: 17}, 3: {withV: 12, noV: 18}, 4: {withV: 14, noV: 20}, 5: {withV: 16, noV: 23}, 
         6: {withV: 18, noV: 25}, 7: {withV: 22, noV: 29}, 8: {withV: 25, noV: 32}, 9: {withV: 28, noV: 35}, 
         10: {withV: 30, noV: 38}, 11: {withV: 32, noV: 42}, 12: {withV: 35, noV: 45} 
     };
     
+    // Тарифы до 20 000 ₽
     const ratesLow = { 
         2: {withV: 15, noV: 20}, 3: {withV: 20, noV: 25}, 4: {withV: 25, noV: 30}, 5: {withV: 27, noV: 32} 
     };
@@ -154,6 +156,7 @@
         let select = document.getElementById('months');
         let currentVal = parseInt(select.value);
         select.innerHTML = '';
+        
         let maxMonth = cost < 20000 ? 5 : 12;
         for (let i = 2; i <= maxMonth; i++) {
             let opt = document.createElement('option');
@@ -230,12 +233,13 @@
         
         let visualPercent = cost > 0 ? Math.round((finalOverpay / cost) * 100) : effectivePercentForDisplay;
 
+        // Сохраняем данные для функции отправки (чистые значения)
         lastCalcData = {
             costStr: cost.toLocaleString('ru-RU') + ' ₽',
             vznosStr: vznos.toLocaleString('ru-RU') + ' ₽',
             monthsStr: months + ' мес.',
             monthlyStr: monthly.toLocaleString('ru-RU') + ' ₽',
-            overpayStr: finalOverpay.toLocaleString('ru-RU') + ' ₽'
+            percentOnly: visualPercent + '%'
         };
 
         document.getElementById('resCost').innerText = lastCalcData.costStr;
@@ -246,30 +250,33 @@
         document.getElementById('resOverpay').innerText = finalOverpay.toLocaleString('ru-RU') + ` ₽ (${visualPercent}%)`;
     }
     
-    // Обновленная функция для WhatsApp
+    // Формируем красивый текст для WhatsApp (без итоговой суммы, с эмодзи и жирным шрифтом)
     function getResultText() {
-        let text = `🔹 YUSRA - Рассрочка по нормам ислама 🔹\n\n`;
-        text += `📦 Себестоимость: *${lastCalcData.costStr}*\n`;
+        let text = `🔹️ *YUSRA - Рассрочка по нормам ислама* 🔹️\n\n`;
+        text += `📦 Себестоимость: ${lastCalcData.costStr}\n`;
         
         if (withVznos) {
-            text += `💸 Первый взнос: *${lastCalcData.vznosStr}*\n`;
+            text += `💱 Первый взнос: ${lastCalcData.vznosStr}\n`;
         }
         
-        text += `⏳ Срок: *${lastCalcData.monthsStr}*\n`;
-        text += `💳 Ежемесячный платеж: *${lastCalcData.monthlyStr}*\n`;
-        text += `📈 Итоговая переплата: *${lastCalcData.overpayStr}*`;
+        text += `⏳ Срок: ${lastCalcData.monthsStr}\n`;
+        text += `💳 Ежемесячный платеж: *${lastCalcData.monthlyStr}*\n\n`;
+        text += `📈 Переплата: *${lastCalcData.percentOnly}*`;
         
         return text;
     }
     
     function copyResult() { 
-        navigator.clipboard.writeText(getResultText());
-        alert('Данные скопированы!');
+        navigator.clipboard.writeText(getResultText()); 
     }
     
     function shareResult() {
         let text = getResultText();
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        if (navigator.share) {
+            navigator.share({ text: text }).catch(() => {});
+        } else {
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        }
     }
     
     onCostChange();
