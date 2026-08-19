@@ -61,6 +61,11 @@
     </div>
 
     <div class="form-group">
+        <label>Отчество клиента:</label>
+        <input type="text" id="clientMiddleName" placeholder="например, Исламович">
+    </div>
+
+    <div class="form-group">
         <label>Себестоимость (₽):</label>
         <input type="number" id="costPrice" value="100000" oninput="onCostChange()">
     </div>
@@ -106,7 +111,27 @@
 <script>
     let withVznos = true;
     const ratesHigh = { 2: {withV:11, noV:17}, 3: {withV:12, noV:18}, 4: {withV:14, noV:20}, 5: {withV:16, noV:23}, 6: {withV:18, noV:25}, 7: {withV:22, noV:29}, 8: {withV:25, noV:32}, 9: {withV:28, noV:35}, 10: {withV:30, noV:38}, 11: {withV:32, noV:42}, 12: {withV:35, noV:45} };
-    const ratesLow = { 2: {withV:15, noV:20}, 3: {withV:20, noV:25}, 4: {withV:25, noV:30}, 5: {withV:27, noV:32}, 6: {withV:27, noV:32}, 7: {withV:27, noV:32}, 8: {withV:27, noV:32}, 9: {withV:27, noV:32}, 10: {withV:27, noV:32}, 11: {withV:27, noV:32}, 12: {withV:27, noV:32} };
+    const ratesLow = { 2: {withV:15, noV:20}, 3: {withV:20, noV:25}, 4: {withV:25, noV:30}, 5: {withV:27, noV:32} };
+
+    function updateMonthOptions(cost) {
+        let select = document.getElementById('months');
+        let currentVal = parseInt(select.value);
+        select.innerHTML = '';
+        
+        let maxMonth = cost < 20000 ? 5 : 12;
+        for (let i = 2; i <= maxMonth; i++) {
+            let opt = document.createElement('option');
+            opt.value = i;
+            opt.innerText = i + ' ' + (i < 5 ? 'месяца' : 'месяцев');
+            select.appendChild(opt);
+        }
+        
+        if (currentVal > maxMonth) {
+            select.value = maxMonth;
+        } else {
+            select.value = currentVal;
+        }
+    }
 
     function setMode(status) {
         withVznos = status;
@@ -118,14 +143,24 @@
         else { vznosGroup.style.display = 'none'; resVznosRow.style.display = 'none'; document.getElementById('vznos').value = 0; }
         calculate();
     }
-    function onCostChange() { if (withVznos) { let cost = parseFloat(document.getElementById('costPrice').value)||0; document.getElementById('vznos').value = Math.round(cost * 0.2); } calculate(); }
+    
+    function onCostChange() { 
+        let cost = parseFloat(document.getElementById('costPrice').value)||0;
+        updateMonthOptions(cost);
+        if (withVznos) { 
+            document.getElementById('vznos').value = Math.round(cost * 0.2); 
+        } 
+        calculate(); 
+    }
+    
     function round50(val) { let remainder = val % 50; return remainder >= 25 ? val + (50 - remainder) : val - remainder; }
+    
     function calculate() {
         let cost = parseFloat(document.getElementById('costPrice').value)||0;
         let months = parseInt(document.getElementById('months').value)||3;
         let vznos = withVznos ? (parseFloat(document.getElementById('vznos').value)||0) : 0;
         let table = cost < 20000 ? ratesLow : ratesHigh;
-        let currentRates = table[months] || table[12];
+        let currentRates = table[months] || table[Object.keys(table)[Object.keys(table).length - 1]];
         let percent = withVznos ? currentRates.withV : currentRates.noV;
         let baseForPercent = Math.max(cost - vznos, 0);
         let totalOverpay = baseForPercent * (percent / 100);
@@ -134,6 +169,7 @@
         let monthly = round50(Math.round(remainingToPay / months));
         let finalTotalCost = vznos + (monthly * months);
         let finalOverpay = finalTotalCost - cost;
+        
         document.getElementById('resCost').innerText = cost.toLocaleString('ru-RU') + ' ₽';
         document.getElementById('resVznos').innerText = vznos.toLocaleString('ru-RU') + ' ₽';
         document.getElementById('resMonths').innerText = months + ' мес.';
@@ -141,16 +177,28 @@
         document.getElementById('resTotal').innerText = finalTotalCost.toLocaleString('ru-RU') + ' ₽';
         document.getElementById('resOverpay').innerText = finalOverpay.toLocaleString('ru-RU') + ` ₽ (${percent}%)`;
     }
+    
     function getResultText() {
-        let cost = document.getElementById('resCost').innerText, vznos = document.getElementById('resVznos').innerText, months = document.getElementById('resMonths').innerText, monthly = document.getElementById('resMonthly').innerText, total = document.getElementById('resTotal').innerText, overpay = document.getElementById('resOverpay').innerText;
-        let text = `Расчет рассрочки YUSRA:\n• Себестоимость: ${cost}\n`;
+        let middleName = document.getElementById('clientMiddleName').value.trim();
+        let cost = document.getElementById('resCost').innerText;
+        let vznos = document.getElementById('resVznos').innerText;
+        let months = document.getElementById('resMonths').innerText;
+        let monthly = document.getElementById('resMonthly').innerText;
+        let total = document.getElementById('resTotal').innerText;
+        let overpay = document.getElementById('resOverpay').innerText;
+        
+        let text = `Расчет рассрочки YUSRA`;
+        if (middleName) text += ` (${middleName})`;
+        text += `:\n• Себестоимость: ${cost}\n`;
         if (withVznos) text += `• Первый взнос: ${vznos}\n`;
         text += `• Срок: ${months}\n• Ежемесячный платеж: ${monthly}\n• Итоговая стоимость: ${total}\n• Переплата: ${overpay}`;
         return text;
     }
+    
     function copyResult() { 
         navigator.clipboard.writeText(getResultText()); 
     }
+    
     function shareResult() {
         let text = getResultText();
         if (navigator.share) {
@@ -159,7 +207,8 @@
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
         }
     }
-    calculate();
+    
+    onCostChange();
 </script>
 </body>
 </html>
