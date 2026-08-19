@@ -61,11 +61,6 @@
     </div>
 
     <div class="form-group">
-        <label>Отчество клиента:</label>
-        <input type="text" id="clientMiddleName" placeholder="например, Исламович">
-    </div>
-
-    <div class="form-group">
         <label>Себестоимость (₽):</label>
         <input type="number" id="costPrice" value="100000" oninput="onCostChange()">
     </div>
@@ -179,7 +174,6 @@
     }
     
     function getResultText() {
-        let middleName = document.getElementById('clientMiddleName').value.trim();
         let cost = document.getElementById('resCost').innerText;
         let vznos = document.getElementById('resVznos').innerText;
         let months = document.getElementById('resMonths').innerText;
@@ -187,9 +181,7 @@
         let total = document.getElementById('resTotal').innerText;
         let overpay = document.getElementById('resOverpay').innerText;
         
-        let text = `Расчет рассрочки YUSRA`;
-        if (middleName) text += ` (${middleName})`;
-        text += `:\n• Себестоимость: ${cost}\n`;
+        let text = `Расчет рассрочки YUSRA:\n• Себестоимость: ${cost}\n`;
         if (withVznos) text += `• Первый взнос: ${vznos}\n`;
         text += `• Срок: ${months}\n• Ежемесячный платеж: ${monthly}\n• Итоговая стоимость: ${total}\n• Переплата: ${overpay}`;
         return text;
