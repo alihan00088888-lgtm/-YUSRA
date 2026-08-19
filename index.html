@@ -67,7 +67,7 @@
 
     <div class="form-group">
         <label>Срок рассрочки:</label>
-        <select id="months" onchange="onMonthChange()">
+        <select id="months" onchange="calculate()">
             <option value="2">2 месяца</option>
             <option value="3" selected>3 месяца</option>
             <option value="4">4 месяца</option>
@@ -84,7 +84,7 @@
 
     <div class="form-group" id="vznosGroup">
         <label>Первоначальный взнос (₽):</label>
-        <input type="number" id="vznos" value="20000" oninput="onVznosInput()">
+        <input type="number" id="vznos" value="20000" oninput="calculate()">
     </div>
 
     <div class="result-box">
@@ -105,19 +105,8 @@
 
 <script>
     let withVznos = true;
-    let isUserModifiedVznos = false; // Флаг: крутил ли пользователь взнос вручную
-
-    const ratesHigh = { 
-        2: {withV:11, noV:17}, 3: {withV:12, noV:18}, 4: {withV:14, noV:20}, 
-        5: {withV:16, noV:23}, 6: {withV:18, noV:25}, 7: {withV:22, noV:29}, 
-        8: {withV:25, noV:32}, 9: {withV:28, noV:35}, 10: {withV:30, noV:38}, 
-        11: {withV:32, noV:42}, 12: {withV:35, noV:45} 
-    };
-    
-    const ratesLow = { 
-        2: {withV:15, noV:20}, 3: {withV:20, noV:25}, 
-        4: {withV:25, noV:30}, 5: {withV:27, noV:32} 
-    };
+    const ratesHigh = { 2: {withV:11, noV:17}, 3: {withV:12, noV:18}, 4: {withV:14, noV:20}, 5: {withV:16, noV:23}, 6: {withV:18, noV:25}, 7: {withV:22, noV:29}, 8: {withV:25, noV:32}, 9: {withV:28, noV:35}, 10: {withV:30, noV:38}, 11: {withV:32, noV:42}, 12: {withV:35, noV:45} };
+    const ratesLow = { 2: {withV:15, noV:20}, 3: {withV:20, noV:25}, 4: {withV:25, noV:30}, 5: {withV:27, noV:32} };
 
     function updateMonthOptions(cost) {
         let select = document.getElementById('months');
@@ -145,18 +134,15 @@
         document.getElementById('btnNoVznos').classList.toggle('active', !status);
         const vznosGroup = document.getElementById('vznosGroup');
         const resVznosRow = document.getElementById('resVznosRow');
-        
         if (status) { 
             vznosGroup.style.display = 'block'; 
             resVznosRow.style.display = 'flex'; 
-            isUserModifiedVznos = false;
             let cost = parseFloat(document.getElementById('costPrice').value)||0; 
             document.getElementById('vznos').value = Math.round(cost * 0.2); 
         } else { 
             vznosGroup.style.display = 'none'; 
             resVznosRow.style.display = 'none'; 
             document.getElementById('vznos').value = 0; 
-            isUserModifiedVznos = false;
         }
         calculate();
     }
@@ -164,79 +150,58 @@
     function onCostChange() { 
         let cost = parseFloat(document.getElementById('costPrice').value)||0;
         updateMonthOptions(cost);
-        if (withVznos && !isUserModifiedVznos) { 
+        if (withVznos) { 
             document.getElementById('vznos').value = Math.round(cost * 0.2); 
         } 
         calculate(); 
     }
-
-    function onMonthChange() {
-        if (withVznos && !isUserModifiedVznos) {
-            let cost = parseFloat(document.getElementById('costPrice').value)||0;
-            document.getElementById('vznos').value = Math.round(cost * 0.2);
-        }
-        calculate();
-    }
-
-    function onVznosInput() {
-        isUserModifiedVznos = true;
-        calculate();
-    }
     
-    function round50(val) { 
-        let remainder = val % 50; 
-        return remainder >= 25 ? val + (50 - remainder) : val - remainder; 
-    }
+    function round50(val) { let remainder = val % 50; return remainder >= 25 ? val + (50 - remainder) : val - remainder; }
     
     function calculate() {
         let cost = parseFloat(document.getElementById('costPrice').value)||0;
         let months = parseInt(document.getElementById('months').value)||3;
         let vznos = withVznos ? (parseFloat(document.getElementById('vznos').value)||0) : 0;
-        
         let table = cost < 20000 ? ratesLow : ratesHigh;
         let currentRates = table[months] || table[Object.keys(table)[Object.keys(table).length - 1]];
         
-        let standardVznos = Math.round(cost * 0.2);
-        let diffFromStandard = Math.abs(vznos - standardVznos);
+        let totalCost, percent;
         
-        let totalCost = 0;
-        let effectivePercent = 0;
-
         if (!withVznos) {
             // Режим без взноса
-            effectivePercent = currentRates.noV;
-            let totalOverpay = cost * (effectivePercent / 100);
+            percent = currentRates.noV;
+            let totalOverpay = cost * (percent / 100);
             totalCost = cost + totalOverpay;
         } else {
-            // Режим со взносом: проверяем, стандартный ли взнос (с погрешностью ±3000)
-            if (!isUserModifiedVznos || diffFromStandard <= 3000) {
-                // Стандартный взнос: проценты берутся со всей себестоимости по тарифу "со взносом"
-                effectivePercent = currentRates.withV;
-                let totalOverpay = cost * (effectivePercent / 100);
+            // Режим со взносом: проверяем, стандартный ли взнос (20% от себестоимости ± 3000 ₽)
+            let standardVznos = cost * 0.2;
+            let isStandard = Math.abs(vznos - standardVznos) <= 3000;
+            
+            if (isStandard) {
+                // Стандартный взнос: процент начисляется на всю себестоимость
+                percent = currentRates.withV;
+                let totalOverpay = cost * (percent / 100);
                 totalCost = cost + totalOverpay;
             } else {
-                // Нестандартный взнос: (Себестоимость - Взнос) + процент "без взноса" на остаток
-                effectivePercent = currentRates.noV;
+                // Нестандартный взнос: из себестоимости вычитается взнос, на остаток идет процент без взноса
+                percent = currentRates.noV;
                 let baseForPercent = Math.max(cost - vznos, 0);
-                let totalOverpay = baseForPercent * (effectivePercent / 100);
+                let totalOverpay = baseForPercent * (percent / 100);
                 totalCost = cost + totalOverpay;
             }
         }
-
+        
         let remainingToPay = Math.max(totalCost - vznos, 0);
         let monthly = round50(Math.round(remainingToPay / months));
         let finalTotalCost = vznos + (monthly * months);
         let finalOverpay = finalTotalCost - cost;
-        // Эффективный процент для отображения в скобках
-        let displayPercent = Math.round((finalOverpay / (withVznos ? Math.max(cost - vznos, 0) : cost)) * 100);
-        if (isNaN(displayPercent)) displayPercent = effectivePercent;
-
+        
         document.getElementById('resCost').innerText = cost.toLocaleString('ru-RU') + ' ₽';
         document.getElementById('resVznos').innerText = vznos.toLocaleString('ru-RU') + ' ₽';
         document.getElementById('resMonths').innerText = months + ' мес.';
         document.getElementById('resMonthly').innerText = monthly.toLocaleString('ru-RU') + ' ₽';
         document.getElementById('resTotal').innerText = finalTotalCost.toLocaleString('ru-RU') + ' ₽';
-        document.getElementById('resOverpay').innerText = finalOverpay.toLocaleString('ru-RU') + ` ₽ (${effectivePercent}%)`;
+        document.getElementById('resOverpay').innerText = finalOverpay.toLocaleString('ru-RU') + ` ₽ (${percent}%)`;
     }
     
     function getResultText() {
