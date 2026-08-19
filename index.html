@@ -233,13 +233,13 @@
         
         let visualPercent = cost > 0 ? Math.round((finalOverpay / cost) * 100) : effectivePercentForDisplay;
 
-        // Сохраняем данные для функции отправки (чистые значения)
+        // Сохраняем данные для функции отправки (добавлено сохранение суммы переплаты)
         lastCalcData = {
             costStr: cost.toLocaleString('ru-RU') + ' ₽',
             vznosStr: vznos.toLocaleString('ru-RU') + ' ₽',
             monthsStr: months + ' мес.',
             monthlyStr: monthly.toLocaleString('ru-RU') + ' ₽',
-            percentOnly: visualPercent + '%'
+            overpayStr: finalOverpay.toLocaleString('ru-RU') + ' ₽' // <--- Изменение здесь
         };
 
         document.getElementById('resCost').innerText = lastCalcData.costStr;
@@ -250,24 +250,25 @@
         document.getElementById('resOverpay').innerText = finalOverpay.toLocaleString('ru-RU') + ` ₽ (${visualPercent}%)`;
     }
     
-    // Формируем красивый текст для WhatsApp (без итоговой суммы, с эмодзи и жирным шрифтом)
+    // Формируем красивый текст для WhatsApp (звездочки добавлены ко всем суммам для жирного шрифта)
     function getResultText() {
-        let text = `🔹️ *YUSRA - Рассрочка по нормам ислама* 🔹️\n\n`;
-        text += `📦 Себестоимость: ${lastCalcData.costStr}\n`;
+        let text = `🔹 *YUSRA - Рассрочка по нормам ислама* 🔹\n\n`;
+        text += `📦 Себестоимость: *${lastCalcData.costStr}*\n`;
         
         if (withVznos) {
-            text += `💱 Первый взнос: ${lastCalcData.vznosStr}\n`;
+            text += `💱 Первый взнос: *${lastCalcData.vznosStr}*\n`;
         }
         
-        text += `⏳ Срок: ${lastCalcData.monthsStr}\n`;
+        text += `⏳ Срок: *${lastCalcData.monthsStr}*\n`;
         text += `💳 Ежемесячный платеж: *${lastCalcData.monthlyStr}*\n\n`;
-        text += `📈 Переплата: *${lastCalcData.percentOnly}*`;
+        text += `📈 Переплата: *${lastCalcData.overpayStr}*`; // <--- И здесь вывод суммы вместо процента
         
         return text;
     }
     
     function copyResult() { 
         navigator.clipboard.writeText(getResultText()); 
+        alert('Текст скопирован!');
     }
     
     function shareResult() {
