@@ -233,13 +233,13 @@
         
         let visualPercent = cost > 0 ? Math.round((finalOverpay / cost) * 100) : effectivePercentForDisplay;
 
-        // Сохраняем данные для функции отправки (добавлено сохранение суммы переплаты)
+        // Сохраняем данные для функции отправки (чистые значения)
         lastCalcData = {
             costStr: cost.toLocaleString('ru-RU') + ' ₽',
             vznosStr: vznos.toLocaleString('ru-RU') + ' ₽',
             monthsStr: months + ' мес.',
             monthlyStr: monthly.toLocaleString('ru-RU') + ' ₽',
-            overpayStr: finalOverpay.toLocaleString('ru-RU') + ' ₽' // <--- Изменение здесь
+            overpayStr: finalOverpay.toLocaleString('ru-RU') + ' ₽' // Изменение: сохраняем сумму переплаты
         };
 
         document.getElementById('resCost').innerText = lastCalcData.costStr;
@@ -250,9 +250,9 @@
         document.getElementById('resOverpay').innerText = finalOverpay.toLocaleString('ru-RU') + ` ₽ (${visualPercent}%)`;
     }
     
-    // Формируем красивый текст для WhatsApp (звездочки добавлены ко всем суммам для жирного шрифта)
+    // Формируем красивый текст для WhatsApp 
     function getResultText() {
-        let text = `🔹 *YUSRA - Рассрочка по нормам ислама* 🔹\n\n`;
+        let text = `🔹️ *YUSRA - Рассрочка по нормам ислама* 🔹️\n\n`;
         text += `📦 Себестоимость: *${lastCalcData.costStr}*\n`;
         
         if (withVznos) {
@@ -261,14 +261,14 @@
         
         text += `⏳ Срок: *${lastCalcData.monthsStr}*\n`;
         text += `💳 Ежемесячный платеж: *${lastCalcData.monthlyStr}*\n\n`;
-        text += `📈 Переплата: *${lastCalcData.overpayStr}*`; // <--- И здесь вывод суммы вместо процента
+        text += `📈 Переплата: *${lastCalcData.overpayStr}*`; // Изменение: выводим сохраненную сумму переплаты
         
         return text;
     }
     
     function copyResult() { 
+        // Изменение: тихое копирование без alert()
         navigator.clipboard.writeText(getResultText()); 
-        alert('Текст скопирован!');
     }
     
     function shareResult() {
