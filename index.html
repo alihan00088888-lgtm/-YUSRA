@@ -3,31 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YUSRA - Калькулятор</title>
+    <title>YUSRA - Калькулятор рассрочки</title>
     <style>
         :root {
-            --primary: #00a884;
-            --primary-light: #dcf8c6;
-            --bg: #f0f2f5;
-            --card: #ffffff;
-            --text: #111b21;
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --border-color: #e5e7eb;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
-        .container { background: var(--card); width: 100%; max-width: 400px; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        h1 { text-align: center; margin-bottom: 5px; color: var(--primary); }
-        .subtitle { text-align: center; font-size: 14px; color: #667781; margin-bottom: 20px; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 420px;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        h1 { text-align: center; font-size: 24px; margin-bottom: 4px; }
+        .subtitle { text-align: center; font-size: 14px; color: #6b7280; margin-bottom: 20px; }
         .mode-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
-        .mode-btn { flex: 1; padding: 10px; border: none; background: #e9edef; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .mode-btn.active { background: var(--primary); color: white; }
-        .form-group { margin-bottom: 15px; }
-        label { font-size: 13px; color: #667781; margin-bottom: 5px; display: block; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 12px; font-size: 16px; box-sizing: border-box; }
-        .result-box { background: #f8f9fa; padding: 15px; border-radius: 15px; margin-top: 20px; border: 1px solid #e9edef; }
-        .result-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
+        .mode-btn { flex: 1; padding: 12px; border: 2px solid var(--border-color); background: #fff; border-radius: 10px; font-weight: 600; cursor: pointer; }
+        .mode-btn.active { border-color: var(--primary); background: #ecfdf5; color: var(--primary-dark); }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        .result-box { background: #f9fafb; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-top: 20px; }
+        .result-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+        .result-row span:last-child { font-weight: 600; }
         .actions { display: flex; gap: 10px; margin-top: 20px; }
-        .action-btn { flex: 1; padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; color: white; text-align: center; }
-        .btn-copy { background: #333; }
-        .btn-whatsapp { background: var(--primary); }
+        .action-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: #fff; text-align: center; text-decoration: none; font-size: 14px; }
+        .btn-copy { background-color: #374151; }
+        .btn-whatsapp { background-color: #25d366; }
     </style>
 </head>
 <body>
@@ -37,8 +56,8 @@
     <div class="subtitle">Калькулятор рассрочки</div>
 
     <div class="mode-buttons">
-        <button id="btnWithVznos" class="mode-btn active" onclick="setMode(true)">Со взносом</button>
-        <button id="btnNoVznos" class="mode-btn" onclick="setMode(false)">Без взноса</button>
+        <button type="button" id="btnWithVznos" class="mode-btn active" onclick="setMode(true)">Со взносом</button>
+        <button type="button" id="btnNoVznos" class="mode-btn" onclick="setMode(false)">Без взноса</button>
     </div>
 
     <div class="form-group">
@@ -49,8 +68,16 @@
     <div class="form-group">
         <label>Срок рассрочки:</label>
         <select id="months" onchange="calculate()">
+            <option value="2">2 месяца</option>
             <option value="3" selected>3 месяца</option>
+            <option value="4">4 месяца</option>
+            <option value="5">5 месяцев</option>
             <option value="6">6 месяцев</option>
+            <option value="7">7 месяцев</option>
+            <option value="8">8 месяцев</option>
+            <option value="9">9 месяцев</option>
+            <option value="10">10 месяцев</option>
+            <option value="11">11 месяцев</option>
             <option value="12">12 месяцев</option>
         </select>
     </div>
@@ -61,52 +88,77 @@
     </div>
 
     <div class="result-box">
-        <div class="result-row"><span>Себестоимость:</span> <b id="resCost">0 ₽</b></div>
-        <div class="result-row" id="resVznosRow"><span>Первый взнос:</span> <b id="resVznos">0 ₽</b></div>
-        <div class="result-row"><span>Платеж:</span> <b id="resMonthly">0 ₽</b></div>
-        <div class="result-row"><span>Итого:</span> <b id="resTotal">0 ₽</b></div>
-        <div class="result-row"><span>Переплата:</span> <b id="resOverpay">0 ₽</b></div>
+        <h3>Расчет YUSRA:</h3>
+        <div class="result-row"><span>Себестоимость:</span> <span id="resCost">0 ₽</span></div>
+        <div class="result-row" id="resVznosRow"><span>Первый взнос:</span> <span id="resVznos">0 ₽</span></div>
+        <div class="result-row"><span>Срок:</span> <span id="resMonths">3 мес.</span></div>
+        <div class="result-row"><span>Ежемесячный платеж:</span> <span id="resMonthly">0 ₽</span></div>
+        <div class="result-row"><span>Итоговая стоимость:</span> <span id="resTotal">0 ₽</span></div>
+        <div class="result-row"><span>Переплата:</span> <span id="resOverpay">0 ₽ (0%)</span></div>
     </div>
 
     <div class="actions">
-        <button class="action-btn btn-copy" onclick="copyResult()">Копировать</button>
-        <button class="action-btn btn-whatsapp" onclick="shareWhatsApp()">WhatsApp</button>
+        <button type="button" class="action-btn btn-copy" onclick="copyResult()">Копировать</button>
+        <button type="button" class="action-btn btn-whatsapp" onclick="shareResult()">WhatsApp</button>
     </div>
 </div>
 
 <script>
     let withVznos = true;
+    const ratesHigh = { 2: {withV:11, noV:17}, 3: {withV:12, noV:18}, 4: {withV:14, noV:20}, 5: {withV:16, noV:23}, 6: {withV:18, noV:25}, 7: {withV:22, noV:29}, 8: {withV:25, noV:32}, 9: {withV:28, noV:35}, 10: {withV:30, noV:38}, 11: {withV:32, noV:42}, 12: {withV:35, noV:45} };
+    const ratesLow = { 2: {withV:15, noV:20}, 3: {withV:20, noV:25}, 4: {withV:25, noV:30}, 5: {withV:27, noV:32}, 6: {withV:27, noV:32}, 7: {withV:27, noV:32}, 8: {withV:27, noV:32}, 9: {withV:27, noV:32}, 10: {withV:27, noV:32}, 11: {withV:27, noV:32}, 12: {withV:27, noV:32} };
+
     function setMode(status) {
         withVznos = status;
         document.getElementById('btnWithVznos').classList.toggle('active', status);
         document.getElementById('btnNoVznos').classList.toggle('active', !status);
-        document.getElementById('vznosGroup').style.display = status ? 'block' : 'none';
-        document.getElementById('resVznosRow').style.display = status ? 'flex' : 'none';
-        onCostChange();
-    }
-    function onCostChange() {
-        if (withVznos) document.getElementById('vznos').value = Math.round(parseFloat(document.getElementById('costPrice').value) * 0.2) || 0;
+        const vznosGroup = document.getElementById('vznosGroup');
+        const resVznosRow = document.getElementById('resVznosRow');
+        if (status) { vznosGroup.style.display = 'block'; resVznosRow.style.display = 'flex'; let cost = parseFloat(document.getElementById('costPrice').value)||0; document.getElementById('vznos').value = Math.round(cost * 0.2); }
+        else { vznosGroup.style.display = 'none'; resVznosRow.style.display = 'none'; document.getElementById('vznos').value = 0; }
         calculate();
     }
+    function onCostChange() { if (withVznos) { let cost = parseFloat(document.getElementById('costPrice').value)||0; document.getElementById('vznos').value = Math.round(cost * 0.2); } calculate(); }
+    function round50(val) { let remainder = val % 50; return remainder >= 25 ? val + (50 - remainder) : val - remainder; }
     function calculate() {
         let cost = parseFloat(document.getElementById('costPrice').value)||0;
         let months = parseInt(document.getElementById('months').value)||3;
         let vznos = withVznos ? (parseFloat(document.getElementById('vznos').value)||0) : 0;
-        let percent = withVznos ? (months == 3 ? 12 : months == 6 ? 18 : 35) : (months == 3 ? 18 : months == 6 ? 25 : 45);
-        let totalCost = cost + (Math.max(cost - vznos, 0) * (percent / 100));
-        let monthly = Math.round((totalCost - vznos) / months / 50) * 50;
-        let finalTotal = vznos + (monthly * months);
-        document.getElementById('resCost').innerText = cost.toLocaleString() + ' ₽';
-        document.getElementById('resVznos').innerText = vznos.toLocaleString() + ' ₽';
-        document.getElementById('resMonthly').innerText = monthly.toLocaleString() + ' ₽';
-        document.getElementById('resTotal').innerText = finalTotal.toLocaleString() + ' ₽';
-        document.getElementById('resOverpay').innerText = (finalTotal - cost).toLocaleString() + ' ₽';
+        let table = cost < 20000 ? ratesLow : ratesHigh;
+        let currentRates = table[months] || table[12];
+        let percent = withVznos ? currentRates.withV : currentRates.noV;
+        let baseForPercent = Math.max(cost - vznos, 0);
+        let totalOverpay = baseForPercent * (percent / 100);
+        let totalCost = cost + totalOverpay;
+        let remainingToPay = Math.max(totalCost - vznos, 0);
+        let monthly = round50(Math.round(remainingToPay / months));
+        let finalTotalCost = vznos + (monthly * months);
+        let finalOverpay = finalTotalCost - cost;
+        document.getElementById('resCost').innerText = cost.toLocaleString('ru-RU') + ' ₽';
+        document.getElementById('resVznos').innerText = vznos.toLocaleString('ru-RU') + ' ₽';
+        document.getElementById('resMonths').innerText = months + ' мес.';
+        document.getElementById('resMonthly').innerText = monthly.toLocaleString('ru-RU') + ' ₽';
+        document.getElementById('resTotal').innerText = finalTotalCost.toLocaleString('ru-RU') + ' ₽';
+        document.getElementById('resOverpay').innerText = finalOverpay.toLocaleString('ru-RU') + ` ₽ (${percent}%)`;
     }
     function getResultText() {
-        return `Расчет рассрочки YUSRA:\nСебестоимость: ${document.getElementById('resCost').innerText}\n${withVznos ? 'Первый взнос: '+document.getElementById('resVznos').innerText+'\n' : ''}Ежемесячный платеж: ${document.getElementById('resMonthly').innerText}\nИтоговая стоимость: ${document.getElementById('resTotal').innerText}\nПереплата: ${document.getElementById('resOverpay').innerText}`;
+        let cost = document.getElementById('resCost').innerText, vznos = document.getElementById('resVznos').innerText, months = document.getElementById('resMonths').innerText, monthly = document.getElementById('resMonthly').innerText, total = document.getElementById('resTotal').innerText, overpay = document.getElementById('resOverpay').innerText;
+        let text = `Расчет рассрочки YUSRA:\n• Себестоимость: ${cost}\n`;
+        if (withVznos) text += `• Первый взнос: ${vznos}\n`;
+        text += `• Срок: ${months}\n• Ежемесячный платеж: ${monthly}\n• Итоговая стоимость: ${total}\n• Переплата: ${overpay}`;
+        return text;
     }
-    function copyResult() { navigator.clipboard.writeText(getResultText()); }
-    function shareWhatsApp() { window.location.href = `whatsapp://send?text=${encodeURIComponent(getResultText())}`; }
+    function copyResult() { 
+        navigator.clipboard.writeText(getResultText()); 
+    }
+    function shareResult() {
+        let text = getResultText();
+        if (navigator.share) {
+            navigator.share({ text: text }).catch(() => {});
+        } else {
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        }
+    }
     calculate();
 </script>
 </body>
