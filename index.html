@@ -6,9 +6,9 @@
     <title>YUSRA - Рассрочка по нормам ислама</title>
     <style>
         :root {
-            --primary: #1e40af;       /* Насыщенный синий */
-            --primary-dark: #1e3a8a;  /* Глубокий темно-синий */
-            --primary-light: #eff6ff; /* Светло-синий фон блока */
+            --primary: #1e40af;       
+            --primary-dark: #1e3a8a;  
+            --primary-light: #eff6ff; 
             --bg-color: #f8fafc;
             --card-bg: #ffffff;
             --text-color: #0f172a;
@@ -28,13 +28,13 @@
             position: relative;
             overflow-x: hidden;
         }
-        /* Полупрозрачный водяной знак логотипа на фоне (графический контур) */
+        /* Полупрозрачный водяной знак логотипа на фоне */
         body::before {
             content: "";
             position: absolute;
             width: 500px;
             height: 500px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cpath fill='%231e40af' opacity='0.03' d='M250 20C122.97 20 20 122.97 20 250s102.97 230 230 230 230-102.97 230-230S377.03 20 250 20zm0 416c-102.75 0-186-83.25-186-186S147.25 64 250 64s186 83.25 186 186-83.25 186-186 186zm-86-146h32v80h-32v-80zm64-48h32v128h-32v-128zm64-32h32v160h-32v-160zm62.43 12.38l22.63-22.63 45.25 45.25-22.63 22.63-45.25-45.25z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cpath fill='%231e40af' opacity='0.04' d='M250 20C122.97 20 20 122.97 20 250s102.97 230 230 230 230-102.97 230-230S377.03 20 250 20zm0 416c-102.75 0-186-83.25-186-186S147.25 64 250 64s186 83.25 186 186-83.25 186-186 186zm-86-146h32v80h-32v-80zm64-48h32v128h-32v-128zm64-32h32v160h-32v-160zm62.43 12.38l22.63-22.63 45.25 45.25-22.63 22.63-45.25-45.25z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
@@ -54,26 +54,9 @@
             border: 1px solid rgba(203, 213, 225, 0.6);
         }
         
-        .logo-area {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .logo-title {
-            font-size: 32px;
-            font-weight: 900;
-            color: var(--primary-dark);
-            letter-spacing: 2px;
-            margin: 0;
-            line-height: 1;
-        }
-        .logo-subtitle {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-top: 6px;
-        }
+        .logo-area { text-align: center; margin-bottom: 20px; }
+        .logo-title { font-size: 32px; font-weight: 900; color: var(--primary-dark); letter-spacing: 2px; margin: 0; line-height: 1; }
+        .logo-subtitle { font-size: 11px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 6px; }
 
         .mode-buttons { display: flex; gap: 8px; margin-bottom: 20px; background: #f1f5f9; padding: 4px; border-radius: 12px; border: 1px solid var(--border-color); }
         .mode-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 9px; font-weight: 600; cursor: pointer; color: var(--text-muted); transition: all 0.2s; font-size: 14px; }
@@ -155,28 +138,18 @@
 
 <script>
     let withVznos = true;
+    let lastCalcData = {};
     
     // Тарифы от 20 000 ₽
     const ratesHigh = { 
-        2: {withV: 11, noV: 17}, 
-        3: {withV: 12, noV: 18}, 
-        4: {withV: 14, noV: 20}, 
-        5: {withV: 16, noV: 23}, 
-        6: {withV: 18, noV: 25}, 
-        7: {withV: 22, noV: 29}, 
-        8: {withV: 25, noV: 32}, 
-        9: {withV: 28, noV: 35}, 
-        10: {withV: 30, noV: 38}, 
-        11: {withV: 32, noV: 42}, 
-        12: {withV: 35, noV: 45} 
+        2: {withV: 11, noV: 17}, 3: {withV: 12, noV: 18}, 4: {withV: 14, noV: 20}, 5: {withV: 16, noV: 23}, 
+        6: {withV: 18, noV: 25}, 7: {withV: 22, noV: 29}, 8: {withV: 25, noV: 32}, 9: {withV: 28, noV: 35}, 
+        10: {withV: 30, noV: 38}, 11: {withV: 32, noV: 42}, 12: {withV: 35, noV: 45} 
     };
     
-    // Тарифы до 20 000 ₽ (от 2 до 5 месяцев)
+    // Тарифы до 20 000 ₽
     const ratesLow = { 
-        2: {withV: 15, noV: 20}, 
-        3: {withV: 20, noV: 25}, 
-        4: {withV: 25, noV: 30}, 
-        5: {withV: 27, noV: 32} 
+        2: {withV: 15, noV: 20}, 3: {withV: 20, noV: 25}, 4: {withV: 25, noV: 30}, 5: {withV: 27, noV: 32} 
     };
 
     function updateMonthOptions(cost) {
@@ -191,12 +164,7 @@
             opt.innerText = i + ' ' + (i < 5 ? 'месяца' : 'месяцев');
             select.appendChild(opt);
         }
-        
-        if (currentVal > maxMonth) {
-            select.value = maxMonth;
-        } else {
-            select.value = currentVal;
-        }
+        select.value = (currentVal > maxMonth) ? maxMonth : currentVal;
     }
 
     function setMode(status) {
@@ -205,6 +173,7 @@
         document.getElementById('btnNoVznos').classList.toggle('active', !status);
         const vznosGroup = document.getElementById('vznosGroup');
         const resVznosRow = document.getElementById('resVznosRow');
+        
         if (status) { 
             vznosGroup.style.display = 'block'; 
             resVznosRow.style.display = 'flex'; 
@@ -221,9 +190,7 @@
     function onCostChange() { 
         let cost = parseFloat(document.getElementById('costPrice').value)||0;
         updateMonthOptions(cost);
-        if (withVznos) { 
-            document.getElementById('vznos').value = Math.round(cost * 0.2); 
-        } 
+        if (withVznos) { document.getElementById('vznos').value = Math.round(cost * 0.2); } 
         calculate(); 
     }
     
@@ -246,21 +213,16 @@
 
         if (!withVznos) {
             effectivePercentForDisplay = currentRates.noV;
-            let totalOverpay = cost * (effectivePercentForDisplay / 100);
-            totalCost = cost + totalOverpay;
+            totalCost = cost + (cost * (effectivePercentForDisplay / 100));
         } else {
             let tolerance = cost < 20000 ? 1500 : 3000;
-            let isStandardVznos = Math.abs(vznos - standardVznos) <= tolerance;
-
-            if (isStandardVznos) {
+            if (Math.abs(vznos - standardVznos) <= tolerance) {
                 effectivePercentForDisplay = currentRates.withV;
-                let totalOverpay = cost * (effectivePercentForDisplay / 100);
-                totalCost = cost + totalOverpay;
+                totalCost = cost + (cost * (effectivePercentForDisplay / 100));
             } else {
                 let baseForCalculation = Math.max(cost - vznos, 0);
                 let customPercent = Math.max(currentRates.noV - 1, 0);
-                let totalOverpay = baseForCalculation * (customPercent / 100);
-                totalCost = cost + totalOverpay;
+                totalCost = cost + (baseForCalculation * (customPercent / 100));
             }
         }
 
@@ -271,25 +233,36 @@
         
         let visualPercent = cost > 0 ? Math.round((finalOverpay / cost) * 100) : effectivePercentForDisplay;
 
-        document.getElementById('resCost').innerText = cost.toLocaleString('ru-RU') + ' ₽';
-        document.getElementById('resVznos').innerText = vznos.toLocaleString('ru-RU') + ' ₽';
-        document.getElementById('resMonths').innerText = months + ' мес.';
-        document.getElementById('resMonthly').innerText = monthly.toLocaleString('ru-RU') + ' ₽';
+        // Сохраняем данные для функции отправки (чистые значения)
+        lastCalcData = {
+            costStr: cost.toLocaleString('ru-RU') + ' ₽',
+            vznosStr: vznos.toLocaleString('ru-RU') + ' ₽',
+            monthsStr: months + ' мес.',
+            monthlyStr: monthly.toLocaleString('ru-RU') + ' ₽',
+            percentOnly: visualPercent + '%'
+        };
+
+        document.getElementById('resCost').innerText = lastCalcData.costStr;
+        document.getElementById('resVznos').innerText = lastCalcData.vznosStr;
+        document.getElementById('resMonths').innerText = lastCalcData.monthsStr;
+        document.getElementById('resMonthly').innerText = lastCalcData.monthlyStr;
         document.getElementById('resTotal').innerText = finalTotalCost.toLocaleString('ru-RU') + ' ₽';
         document.getElementById('resOverpay').innerText = finalOverpay.toLocaleString('ru-RU') + ` ₽ (${visualPercent}%)`;
     }
     
+    // Формируем красивый текст для WhatsApp (без итоговой суммы, с эмодзи и жирным шрифтом)
     function getResultText() {
-        let cost = document.getElementById('resCost').innerText;
-        let vznos = document.getElementById('resVznos').innerText;
-        let months = document.getElementById('resMonths').innerText;
-        let monthly = document.getElementById('resMonthly').innerText;
-        let total = document.getElementById('resTotal').innerText;
-        let overpay = document.getElementById('resOverpay').innerText;
+        let text = `🌿 *YUSRA - Рассрочка по нормам ислама* 🌿\n\n`;
+        text += `📦 Себестоимость: ${lastCalcData.costStr}\n`;
         
-        let text = `Расчет рассрочки YUSRA:\n• Себестоимость: ${cost}\n`;
-        if (withVznos) text += `• Первый взнос: ${vznos}\n`;
-        text += `• Срок: ${months}\n• Ежемесячный платеж: ${monthly}\n• Итоговая стоимость: ${total}\n• Переплата: ${overpay}`;
+        if (withVznos) {
+            text += `💸 Первый взнос: ${lastCalcData.vznosStr}\n`;
+        }
+        
+        text += `⏳ Срок: ${lastCalcData.monthsStr}\n`;
+        text += `💳 Ежемесячный платеж: *${lastCalcData.monthlyStr}*\n\n`;
+        text += `📈 Переплата: *${lastCalcData.percentOnly}*`;
+        
         return text;
     }
     
