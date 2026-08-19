@@ -106,14 +106,23 @@
 <script>
     let withVznos = true;
     const ratesHigh = { 
-        2: {withV:11, noV:17}, 3: {withV:12, noV:18}, 4: {withV:14, noV:20}, 
-        5: {withV:16, noV:23}, 6: {withV:18, noV:25}, 7: {withV:22, noV:29}, 
-        8: {withV:25, noV:32}, 9: {withV:28, noV:35}, 10: {withV:30, noV:38}, 
-        11: {withV:32, noV:42}, 12: {withV:35, noV:45} 
+        2: {withV:11, noV:17}, 
+        3: {withV:12, noV:18}, 
+        4: {withV:14, noV:20}, 
+        5: {withV:16, noV:23}, 
+        6: {withV:18, noV:25}, 
+        7: {withV:22, noV:29}, 
+        8: {withV:25, noV:32}, 
+        9: {withV:28, noV:35}, 
+        10: {withV:30, noV:38}, 
+        11: {withV:32, noV:42}, 
+        12: {withV:35, noV:45} 
     };
     const ratesLow = { 
-        2: {withV:15, noV:20}, 3: {withV:20, noV:25}, 
-        4: {withV:25, noV:30}, 5: {withV:27, noV:32} 
+        2: {withV:15, noV:20}, 
+        3: {withV:20, noV:25}, 
+        4: {withV:25, noV:30}, 
+        5: {withV:27, noV:32} 
     };
 
     function updateMonthOptions(cost) {
@@ -170,51 +179,48 @@
     }
     
     function calculate() {
-        let cost = parseFloat(document.getElementById('costPrice').value)||0;
-        let months = parseInt(document.getElementById('months').value)||3;
-        let vznos = withVznos ? (parseFloat(document.getElementById('vznos').value)||0) : 0;
+        let cost = parseFloat(document.getElementById('costPrice').value) || 0;
+        let months = parseInt(document.getElementById('months').value) || 3;
+        let vznos = withVznos ? (parseFloat(document.getElementById('vznos').value) || 0) : 0;
         
         let table = cost < 20000 ? ratesLow : ratesHigh;
         let currentRates = table[months] || table[Object.keys(table)[Object.keys(table).length - 1]];
         
         let totalCost = 0;
-        let percentUsed = 0;
-
+        
         if (!withVznos) {
             // Режим "Без взноса"
-            percentUsed = currentRates.noV;
-            let totalOverpay = cost * (percentUsed / 100);
-            totalCost = cost + totalOverpay;
+            let overpay = cost * (currentRates.noV / 100);
+            totalCost = cost + overpay;
         } else {
-            // Режим "Со взносом"
+            // Режим "Со взносом": проверяем, стандартный ли взнос (20% с погрешностью ±3000 ₽)
             let standardVznos = cost * 0.2;
             let isStandard = Math.abs(vznos - standardVznos) <= 3000;
-
+            
             if (isStandard) {
-                // Стандартный взнос: процент берется от всей себестоимости по ставке "со взносом"
-                percentUsed = currentRates.withV;
-                let totalOverpay = cost * (percentUsed / 100);
-                totalCost = cost + totalOverpay;
+                // Стандартный взнос: процент "Со взносом" применяется к полной себестоимости
+                let overpay = cost * (currentRates.withV / 100);
+                totalCost = cost + overpay;
             } else {
-                // Нестандартный взнос: (Себестоимость - Взнос) + процент "без взноса" на разницу
-                percentUsed = currentRates.noV;
+                // Нестандартный взнос: из себестоимости вычитается взнос, на остаток применяется процент "Без взноса"
                 let baseForPercent = Math.max(cost - vznos, 0);
-                let totalOverpay = baseForPercent * (percentUsed / 100);
-                totalCost = cost + totalOverpay;
+                let overpay = baseForPercent * (currentRates.noV / 100);
+                totalCost = cost + overpay;
             }
         }
-
+        
         let remainingToPay = Math.max(totalCost - vznos, 0);
         let monthly = round50(Math.round(remainingToPay / months));
         let finalTotalCost = vznos + (monthly * months);
         let finalOverpay = finalTotalCost - cost;
+        let effectivePercent = cost > 0 ? Math.round((finalOverpay / cost) * 100) : 0;
         
         document.getElementById('resCost').innerText = cost.toLocaleString('ru-RU') + ' ₽';
         document.getElementById('resVznos').innerText = vznos.toLocaleString('ru-RU') + ' ₽';
         document.getElementById('resMonths').innerText = months + ' мес.';
         document.getElementById('resMonthly').innerText = monthly.toLocaleString('ru-RU') + ' ₽';
         document.getElementById('resTotal').innerText = finalTotalCost.toLocaleString('ru-RU') + ' ₽';
-        document.getElementById('resOverpay').innerText = finalOverpay.toLocaleString('ru-RU') + ` ₽ (${percentUsed}%)`;
+        document.getElementById('resOverpay').innerText = finalOverpay.toLocaleString('ru-RU') + ` ₽ (${effectivePercent}%)`;
     }
     
     function getResultText() {
