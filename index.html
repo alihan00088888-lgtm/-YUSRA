@@ -6,14 +6,14 @@
     <title>YUSRA - Калькулятор рассрочки</title>
     <style>
         :root {
-            --primary: #1d4ed8;
-            --primary-dark: #1e40af;
-            --primary-light: #eff6ff;
-            --bg-color: #f8fafc;
+            --primary: #059669;
+            --primary-dark: #047857;
+            --primary-light: #ecfdf5;
+            --bg-color: #f1f5f9;
             --card-bg: #ffffff;
             --text-color: #1e293b;
             --text-muted: #64748b;
-            --border-color: #cbd5e1;
+            --border-color: #e2e8f0;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -30,15 +30,13 @@
         }
         /* Полупрозрачный водяной знак логотипа на фоне */
         body::before {
-            content: "YUSRA\AРАССРОЧКА ПО НОРМАМ ИСЛАМА";
-            white-space: pre;
-            text-align: center;
+            content: "YUSRA";
             position: absolute;
-            font-size: 5vw;
-            font-weight: 800;
-            color: rgba(29, 78, 216, 0.03);
+            font-size: 18vw;
+            font-weight: 900;
+            color: rgba(5, 150, 105, 0.03);
             z-index: 0;
-            line-height: 1.4;
+            letter-spacing: 10px;
             pointer-events: none;
             user-select: none;
         }
@@ -48,24 +46,24 @@
             max-width: 420px;
             padding: 24px;
             border-radius: 20px;
-            box-shadow: 0 10px 25px -5px rgba(29, 78, 216, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
             position: relative;
             z-index: 1;
             border: 1px solid rgba(255, 255, 255, 0.8);
         }
-        h1 { text-align: center; font-size: 28px; margin-bottom: 2px; color: var(--primary); letter-spacing: 1.5px; font-weight: 900; }
-        .subtitle { text-align: center; font-size: 11px; color: var(--text-muted); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }
+        h1 { text-align: center; font-size: 26px; margin-bottom: 2px; color: var(--primary); letter-spacing: 1px; font-weight: 800; }
+        .subtitle { text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
         
-        .mode-buttons { display: flex; gap: 8px; margin-bottom: 20px; background: #f1f5f9; padding: 4px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .mode-buttons { display: flex; gap: 8px; margin-bottom: 20px; background: #f8fafc; padding: 4px; border-radius: 12px; border: 1px solid var(--border-color); }
         .mode-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 9px; font-weight: 600; cursor: pointer; color: var(--text-muted); transition: all 0.2s; font-size: 14px; }
-        .mode-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25); }
+        .mode-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2); }
         
         .form-group { margin-bottom: 16px; }
         label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
         input, select { width: 100%; padding: 12px 14px; border: 1px solid var(--border-color); border-radius: 12px; font-size: 16px; box-sizing: border-box; background: #fff; color: var(--text-color); outline: none; transition: border-color 0.2s; }
-        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1); }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1); }
         
-        .result-box { background: var(--primary-light); border: 1px solid #bfdbfe; border-radius: 16px; padding: 18px; margin-top: 20px; }
+        .result-box { background: var(--primary-light); border: 1px solid #a7f3d0; border-radius: 16px; padding: 18px; margin-top: 20px; }
         .result-box h3 { margin: 0 0 12px 0; font-size: 15px; color: var(--primary-dark); }
         .result-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: #334155; }
         .result-row:last-child { margin-bottom: 0; }
@@ -82,7 +80,7 @@
 
 <div class="container">
     <h1>YUSRA</h1>
-    <div class="subtitle">Рассрочка по нормам ислама</div>
+    <div class="subtitle">Калькулятор рассрочки</div>
 
     <div class="mode-buttons">
         <button type="button" id="btnWithVznos" class="mode-btn active" onclick="setMode(true)">Со взносом</button>
@@ -135,6 +133,7 @@
 <script>
     let withVznos = true;
     
+    // Тарифы от 20 000 ₽
     const ratesHigh = { 
         2: {withV: 11, noV: 17}, 
         3: {withV: 12, noV: 18}, 
@@ -149,6 +148,7 @@
         12: {withV: 35, noV: 45} 
     };
     
+    // Тарифы до 20 000 ₽ (от 2 до 5 месяцев)
     const ratesLow = { 
         2: {withV: 15, noV: 20}, 
         3: {withV: 20, noV: 25}, 
@@ -218,25 +218,29 @@
         let currentRates = table[months] || table[Object.keys(table)[Object.keys(table).length - 1]];
         
         let standardVznos = Math.round(cost * 0.2);
-        let effectivePercent = 0;
         let totalCost = 0;
+        let effectivePercentForDisplay = 0;
 
         if (!withVznos) {
-            effectivePercent = currentRates.noV;
-            let totalOverpay = cost * (effectivePercent / 100);
+            // Режим без взноса
+            effectivePercentForDisplay = currentRates.noV;
+            let totalOverpay = cost * (effectivePercentForDisplay / 100);
             totalCost = cost + totalOverpay;
         } else {
-            let isStandardVznos = Math.abs(vznos - standardVznos) <= 3000;
+            // Определение порога погрешности: ±1500 для сумм до 20к, ±3000 для сумм от 20к
+            let tolerance = cost < 20000 ? 1500 : 3000;
+            let isStandardVznos = Math.abs(vznos - standardVznos) <= tolerance;
 
             if (isStandardVznos) {
-                effectivePercent = currentRates.withV;
-                let totalOverpay = cost * (effectivePercent / 100);
+                // СТАНДАРТНЫЙ ВЗНОС: процент со взносом применяется к себестоимости
+                effectivePercentForDisplay = currentRates.withV;
+                let totalOverpay = cost * (effectivePercentForDisplay / 100);
                 totalCost = cost + totalOverpay;
             } else {
-                let baseForPercent = Math.max(cost - vznos, 0);
-                let customNoVPercent = Math.max(currentRates.noV - 1, 0);
-                effectivePercent = customNoVPercent;
-                let totalOverpay = baseForPercent * (effectivePercent / 100);
+                // НЕСТАНДАРТНЫЙ ВЗНОС: (себестоимость - взнос) + (процент без взноса минус 1%)
+                let baseForCalculation = Math.max(cost - vznos, 0);
+                let customPercent = Math.max(currentRates.noV - 1, 0);
+                let totalOverpay = baseForCalculation * (customPercent / 100);
                 totalCost = cost + totalOverpay;
             }
         }
@@ -246,7 +250,8 @@
         let finalTotalCost = vznos + (monthly * months);
         let finalOverpay = finalTotalCost - cost;
         
-        let visualPercent = cost > 0 ? Math.round((finalOverpay / cost) * 100) : effectivePercent;
+        // Визуальный расчет реального процента переплаты относительно себестоимости
+        let visualPercent = cost > 0 ? Math.round((finalOverpay / cost) * 100) : effectivePercentForDisplay;
 
         document.getElementById('resCost').innerText = cost.toLocaleString('ru-RU') + ' ₽';
         document.getElementById('resVznos').innerText = vznos.toLocaleString('ru-RU') + ' ₽';
@@ -264,7 +269,7 @@
         let total = document.getElementById('resTotal').innerText;
         let overpay = document.getElementById('resOverpay').innerText;
         
-        let text = `Расчет рассрочки YUSRA (по нормам ислама):\n• Себестоимость: ${cost}\n`;
+        let text = `Расчет рассрочки YUSRA:\n• Себестоимость: ${cost}\n`;
         if (withVznos) text += `• Первый взнос: ${vznos}\n`;
         text += `• Срок: ${months}\n• Ежемесячный платеж: ${monthly}\n• Итоговая стоимость: ${total}\n• Переплата: ${overpay}`;
         return text;
