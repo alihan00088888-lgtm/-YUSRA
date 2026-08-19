@@ -4,28 +4,23 @@
     <meta charset="UTF-8">
     <title>YUSRA - Калькулятор</title>
     <style>
-        :root { --primary: #1e40af; --primary-dark: #1e3a8a; --bg-color: #f8fafc; }
-        body { font-family: sans-serif; background-color: var(--bg-color); display: flex; justify-content: center; padding: 20px; }
-        
+        :root { --primary: #1e40af; --primary-dark: #1e3a8a; --text-color: #0f172a; }
+        body { font-family: sans-serif; background: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         /* Водяной знак */
         body::before {
-            content: ""; position: fixed; width: 400px; height: 400px; opacity: 0.05;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cpath fill='%231e40af' d='M250 20C122.97 20 20 122.97 20 250s102.97 230 230 230 230-102.97 230-230S377.03 20 250 20zm0 416c-102.75 0-186-83.25-186-186S147.25 64 250 64s186 83.25 186 186-83.25 186-186 186zm-86-146h32v80h-32v-80zm64-48h32v128h-32v-128zm64-32h32v160h-32v-160zm62.43 12.38l22.63-22.63 45.25 45.25-22.63 22.63-45.25-45.25z'/%3E%3C/svg%3E");
-            background-size: contain; z-index: -1;
+            content: ""; position: absolute; width: 400px; height: 400px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cpath fill='%231e40af' opacity='0.05' d='M250 20C122.97 20 20 122.97 20 250s102.97 230 230 230 230-102.97 230-230S377.03 20 250 20zm0 416c-102.75 0-186-83.25-186-186S147.25 64 250 64s186 83.25 186 186-83.25 186-186 186zm-86-146h32v80h-32v-80zm64-48h32v128h-32v-128zm64-32h32v160h-32v-160zm62.43 12.38l22.63-22.63 45.25 45.25-22.63 22.63-45.25-45.25z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: center; z-index: 0; pointer-events: none;
         }
-
-        .container { background: #fff; width: 100%; max-width: 400px; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: var(--primary-dark); text-align: center; margin: 0; }
-        p { color: var(--primary); text-align: center; font-size: 12px; margin-bottom: 20px; text-transform: uppercase; }
+        .container { background: #fff; width: 100%; max-width: 400px; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); position: relative; z-index: 1; }
+        h2 { color: var(--primary-dark); text-align: center; margin-bottom: 20px; }
         .form-group { margin-bottom: 15px; }
         label { display: block; font-size: 12px; font-weight: bold; color: #475569; margin-bottom: 5px; }
         input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; }
-        
-        .result { background: #f1f5f9; padding: 15px; border-radius: 10px; margin-top: 20px; font-size: 14px; }
+        .result { background: #eff6ff; padding: 15px; border-radius: 10px; margin-top: 20px; font-size: 14px; }
         .row { display: flex; justify-content: space-between; margin-bottom: 8px; }
-        .actions { display: flex; gap: 10px; margin-top: 20px; }
-        button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; }
-        .btn-copy { background: #475569; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; margin-top: 10px; }
+        .btn-copy { background: #334155; }
         .btn-wa { background: #25d366; }
     </style>
 </head>
@@ -33,71 +28,69 @@
 
 <div class="container">
     <h2>YUSRA</h2>
-    <p>Рассрочка по нормам ислама</p>
+    <div class="form-group"><label>Себестоимость (₽):</label><input type="number" id="cost" value="100000" oninput="calc()"></div>
+    <div class="form-group"><label>Срок:</label><select id="months" onchange="calc()"></select></div>
+    <div class="form-group" id="vznosWrap"><label>Взнос (₽):</label><input type="number" id="vznos" value="20000" oninput="calc()"></div>
     
-    <div class="form-group">
-        <label>Себестоимость (₽)</label>
-        <input type="number" id="costPrice" value="100000" oninput="calculate()">
+    <div class="result">
+        <div class="row"><span>Платеж:</span> <span id="resMonthly">0</span></div>
+        <div class="row"><span>Переплата:</span> <span id="resOverpay">0</span></div>
     </div>
-    <div class="form-group">
-        <label>Срок</label>
-        <select id="months" onchange="calculate()">
-            <option value="3" selected>3 месяца</option><option value="6">6 месяцев</option><option value="12">12 месяцев</option>
-        </select>
-    </div>
-    <div class="form-group" id="vznosGroup">
-        <label>Первый взнос (₽)</label>
-        <input type="number" id="vznos" value="20000" oninput="calculate()">
-    </div>
-
-    <div class="result" id="resBox"></div>
-
-    <div class="actions">
-        <button class="btn-copy" onclick="copyText()">Копировать</button>
-        <button class="btn-wa" onclick="shareWA()">WhatsApp</button>
-    </div>
+    <button class="btn-copy" onclick="copyText()">Скопировать расчет</button>
+    <button class="btn-wa" onclick="shareWA()">Отправить в WhatsApp</button>
 </div>
 
 <script>
-    let lastData = {};
+    let currentRes = {};
+    const ratesHigh = {2:{w:11,n:17},3:{w:12,n:18},4:{w:14,n:20},5:{w:16,n:23},6:{w:18,n:25},7:{w:22,n:29},8:{w:25,n:32},9:{w:28,n:35},10:{w:30,n:38},11:{w:32,n:42},12:{w:35,n:45}};
+    const ratesLow = {2:{w:15,n:20},3:{w:20,n:25},4:{w:25,n:30},5:{w:27,n:32}};
 
-    function calculate() {
-        let cost = parseFloat(document.getElementById('costPrice').value) || 0;
-        let months = parseInt(document.getElementById('months').value);
-        let vznos = parseFloat(document.getElementById('vznos').value) || 0;
+    function calc() {
+        let cost = parseFloat(document.getElementById('cost').value)||0;
+        let months = parseInt(document.getElementById('months').value)||3;
+        let vznos = parseFloat(document.getElementById('vznos').value)||0;
+        let isHigh = cost >= 20000;
         
-        // Логика переплаты: для простоты примера берем стандартные 12%
-        let overpay = cost * 0.12; 
-        let total = cost + overpay;
+        let rates = (isHigh ? ratesHigh : ratesLow)[months];
+        let isStd = Math.abs(vznos - Math.round(cost*0.2)) <= (isHigh ? 3000 : 1500);
+        
+        let total = isStd ? (cost + (cost * rates.w/100)) : (cost + ((cost-vznos) * (rates.n-1)/100));
         let monthly = Math.round((total - vznos) / months / 50) * 50;
+        let overpay = (vznos + (monthly * months)) - cost;
 
-        lastData = {
-            cost: cost.toLocaleString(),
-            vznos: vznos.toLocaleString(),
-            months: months,
-            monthly: monthly.toLocaleString(),
-            overpay: overpay.toLocaleString()
+        currentRes = {
+            cost: cost.toLocaleString('ru-RU'),
+            vznos: vznos.toLocaleString('ru-RU'),
+            m: months,
+            monthly: monthly.toLocaleString('ru-RU'),
+            overpay: overpay.toLocaleString('ru-RU')
         };
 
-        document.getElementById('resBox').innerHTML = `
-            <div class="row"><span>Итого платеж:</span> <b>${lastData.monthly} ₽</b></div>
-            <div class="row"><span>Переплата:</span> <b>${lastData.overpay} ₽</b></div>
-        `;
+        document.getElementById('resMonthly').innerText = currentRes.monthly + ' ₽';
+        document.getElementById('resOverpay').innerText = currentRes.overpay + ' ₽';
+    }
+
+    function initMonths() {
+        let select = document.getElementById('months');
+        select.innerHTML = '';
+        let max = parseFloat(document.getElementById('cost').value) < 20000 ? 5 : 12;
+        for(let i=2; i<=max; i++) select.innerHTML += `<option value="${i}">${i} мес.</option>`;
     }
 
     function getText() {
-        return `▫️ YUSRA - Рассрочка по нормам ислама ▫️\n\n` +
-               `🔹 Себестоимость: *${lastData.cost} ₽*\n` +
-               `🔹 Первый взнос: *${lastData.vznos} ₽*\n` +
-               `🔹 Срок рассрочки: *${lastData.months} мес.*\n` +
-               `🔹 Ежемесячный платеж: *${lastData.monthly} ₽*\n` +
-               `🔹 Сумма переплаты: *${lastData.overpay} ₽*`;
+        return `▫️ YUSRA — Рассрочка по нормам ислама ▫️\n\n` +
+               `🔹 Себестоимость: *${currentRes.cost} ₽*\n` +
+               `🔹 Первый взнос: *${currentRes.vznos} ₽*\n` +
+               `🔹 Срок рассрочки: *${currentRes.m} мес.*\n` +
+               `🔹 Ежемесячный платеж: *${currentRes.monthly} ₽*\n` +
+               `🔹 Итоговая переплата: *${currentRes.overpay} ₽*`;
     }
 
-    function copyText() { navigator.clipboard.writeText(getText()); alert("Скопировано!"); }
-    function shareWA() { window.open('https://wa.me/?text=' + encodeURIComponent(getText())); }
+    function copyText() { navigator.clipboard.writeText(getText()); alert('Скопировано!'); }
+    function shareWA() { window.open(`https://wa.me/?text=${encodeURIComponent(getText())}`); }
 
-    calculate();
+    document.getElementById('cost').addEventListener('input', initMonths);
+    initMonths(); calc();
 </script>
 </body>
 </html>
