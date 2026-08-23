@@ -117,7 +117,7 @@
 
     <div class="form-group" id="vznosGroup">
         <label>Первоначальный взнос (₽):</label>
-        <input type="number" id="vznos" value="20000" oninput="calculate()">
+        <input type="number" id="vznos" value="24000" oninput="calculate()">
     </div>
 
     <div class="result-box">
@@ -177,8 +177,12 @@
         if (status) { 
             vznosGroup.style.display = 'block'; 
             resVznosRow.style.display = 'flex'; 
-            let cost = parseFloat(document.getElementById('costPrice').value)||0; 
-            document.getElementById('vznos').value = Math.round(cost * 0.2); 
+            let cost = parseFloat(document.getElementById('costPrice').value) || 0;
+            let months = parseInt(document.getElementById('months').value) || 3;
+            let table = cost < 20000 ? ratesLow : ratesHigh;
+            let currentRates = table[months] || table[Object.keys(table)[Object.keys(table).length - 1]];
+            let estimatedTotal = cost + (cost * (currentRates.withV / 100));
+            document.getElementById('vznos').value = Math.round(estimatedTotal * 0.2); 
         } else { 
             vznosGroup.style.display = 'none'; 
             resVznosRow.style.display = 'none'; 
@@ -188,9 +192,15 @@
     }
     
     function onCostChange() { 
-        let cost = parseFloat(document.getElementById('costPrice').value)||0;
+        let cost = parseFloat(document.getElementById('costPrice').value) || 0;
         updateMonthOptions(cost);
-        if (withVznos) { document.getElementById('vznos').value = Math.round(cost * 0.2); } 
+        if (withVznos) { 
+            let months = parseInt(document.getElementById('months').value) || 3;
+            let table = cost < 20000 ? ratesLow : ratesHigh;
+            let currentRates = table[months] || table[Object.keys(table)[Object.keys(table).length - 1]];
+            let estimatedTotal = cost + (cost * (currentRates.withV / 100));
+            document.getElementById('vznos').value = Math.round(estimatedTotal * 0.2); 
+        } 
         calculate(); 
     }
     
@@ -207,7 +217,6 @@
         let table = cost < 20000 ? ratesLow : ratesHigh;
         let currentRates = table[months] || table[Object.keys(table)[Object.keys(table).length - 1]];
         
-        let standardVznos = Math.round(cost * 0.2);
         let totalCost = 0;
         let effectivePercentForDisplay = 0;
 
@@ -215,7 +224,10 @@
             effectivePercentForDisplay = currentRates.noV;
             totalCost = cost + (cost * (effectivePercentForDisplay / 100));
         } else {
+            let estimatedTotal = cost + (cost * (currentRates.withV / 100));
+            let standardVznos = Math.round(estimatedTotal * 0.2);
             let tolerance = cost < 20000 ? 1500 : 3000;
+            
             if (Math.abs(vznos - standardVznos) <= tolerance) {
                 effectivePercentForDisplay = currentRates.withV;
                 totalCost = cost + (cost * (effectivePercentForDisplay / 100));
@@ -233,24 +245,25 @@
         
         let visualPercent = cost > 0 ? Math.round((finalOverpay / cost) * 100) : effectivePercentForDisplay;
 
-        // Сохраняем данные для функции отправки (чистые значения)
+        // Сохраняем данные для функции отправки
         lastCalcData = {
             costStr: cost.toLocaleString('ru-RU') + ' ₽',
             vznosStr: vznos.toLocaleString('ru-RU') + ' ₽',
             monthsStr: months + ' мес.',
             monthlyStr: monthly.toLocaleString('ru-RU') + ' ₽',
-            overpayStr: finalOverpay.toLocaleString('ru-RU') + ' ₽' // Изменение: сохраняем сумму переплаты
+            totalStr: finalTotalCost.toLocaleString('ru-RU') + ' ₽',
+            overpayStr: finalOverpay.toLocaleString('ru-RU') + ' ₽'
         };
 
         document.getElementById('resCost').innerText = lastCalcData.costStr;
         document.getElementById('resVznos').innerText = lastCalcData.vznosStr;
         document.getElementById('resMonths').innerText = lastCalcData.monthsStr;
         document.getElementById('resMonthly').innerText = lastCalcData.monthlyStr;
-        document.getElementById('resTotal').innerText = finalTotalCost.toLocaleString('ru-RU') + ' ₽';
-        document.getElementById('resOverpay').innerText = finalOverpay.toLocaleString('ru-RU') + ` ₽ (${visualPercent}%)`;
+        document.getElementById('resTotal').innerText = lastCalcData.totalStr;
+        document.getElementById('resOverpay').innerText = lastCalcData.overpayStr + ` (${visualPercent}%)`;
     }
     
-    // Формируем красивый текст для WhatsApp 
+    // Формируем текст для WhatsApp и копирования
     function getResultText() {
         let text = `🔹️ *YUSRA - Рассрочка по нормам ислама* 🔹️\n\n`;
         text += `📦 Себестоимость: *${lastCalcData.costStr}*\n`;
@@ -261,13 +274,13 @@
         
         text += `⏳ Срок: *${lastCalcData.monthsStr}*\n`;
         text += `💳 Ежемесячный платеж: *${lastCalcData.monthlyStr}*\n\n`;
-        text += `📈 Переплата: *${lastCalcData.overpayStr}*`; // Изменение: выводим сохраненную сумму переплаты
+        text += `📈 Переплата: *${lastCalcData.overpayStr}*\n`;
+        text += `✅️ Итог: *${lastCalcData.totalStr}*`;
         
         return text;
     }
     
     function copyResult() { 
-        // Изменение: тихое копирование без alert()
         navigator.clipboard.writeText(getResultText()); 
     }
     
@@ -282,5 +295,6 @@
     
     onCostChange();
 </script>
+
 </body>
 </html>
