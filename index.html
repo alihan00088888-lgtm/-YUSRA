@@ -152,11 +152,6 @@
         2: {withV: 15, noV: 20}, 3: {withV: 20, noV: 25}, 4: {withV: 25, noV: 30}, 5: {withV: 27, noV: 32} 
     };
 
-    function round50(val) { 
-        let remainder = val % 50; 
-        return remainder >= 25 ? val + (50 - remainder) : val - remainder; 
-    }
-
     function updateMonthOptions(cost) {
         let select = document.getElementById('months');
         let currentVal = parseInt(select.value);
@@ -170,6 +165,12 @@
             select.appendChild(opt);
         }
         select.value = (currentVal > maxMonth) ? maxMonth : currentVal;
+    }
+
+    // Округление кратно 100 рублей
+    function round100(val) { 
+        let remainder = val % 100; 
+        return remainder >= 50 ? val + (100 - remainder) : val - remainder; 
     }
 
     function setMode(status) {
@@ -187,8 +188,7 @@
             let table = cost < 20000 ? ratesLow : ratesHigh;
             let currentRates = table[months] || table[Object.keys(table)[Object.keys(table).length - 1]];
             let estimatedTotal = cost + (cost * (currentRates.withV / 100));
-            // Округление первоначального взноса кратно 50 ₽
-            document.getElementById('vznos').value = round50(Math.round(estimatedTotal * 0.2)); 
+            document.getElementById('vznos').value = round100(Math.round(estimatedTotal * 0.2)); 
         } else { 
             vznosGroup.style.display = 'none'; 
             resVznosRow.style.display = 'none'; 
@@ -205,8 +205,7 @@
             let table = cost < 20000 ? ratesLow : ratesHigh;
             let currentRates = table[months] || table[Object.keys(table)[Object.keys(table).length - 1]];
             let estimatedTotal = cost + (cost * (currentRates.withV / 100));
-            // Округление первоначального взноса кратно 50 ₽
-            document.getElementById('vznos').value = round50(Math.round(estimatedTotal * 0.2)); 
+            document.getElementById('vznos').value = round100(Math.round(estimatedTotal * 0.2)); 
         } 
         calculate(); 
     }
@@ -227,8 +226,7 @@
             totalCost = cost + (cost * (effectivePercentForDisplay / 100));
         } else {
             let estimatedTotal = cost + (cost * (currentRates.withV / 100));
-            // Стандартный взнос рассчитывается с округлением кратно 50 ₽
-            let standardVznos = round50(Math.round(estimatedTotal * 0.2));
+            let standardVznos = round100(Math.round(estimatedTotal * 0.2));
             let tolerance = cost < 20000 ? 1500 : 3000;
             
             if (Math.abs(vznos - standardVznos) <= tolerance) {
@@ -242,7 +240,7 @@
         }
 
         let remainingToPay = Math.max(totalCost - vznos, 0);
-        let monthly = round50(Math.round(remainingToPay / months));
+        let monthly = round100(Math.round(remainingToPay / months));
         let finalTotalCost = vznos + (monthly * months);
         let finalOverpay = finalTotalCost - cost;
         
