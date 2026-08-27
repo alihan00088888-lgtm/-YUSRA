@@ -152,6 +152,11 @@
         2: {withV: 15, noV: 20}, 3: {withV: 20, noV: 25}, 4: {withV: 25, noV: 30}, 5: {withV: 27, noV: 32} 
     };
 
+    function round50(val) { 
+        let remainder = val % 50; 
+        return remainder >= 25 ? val + (50 - remainder) : val - remainder; 
+    }
+
     function updateMonthOptions(cost) {
         let select = document.getElementById('months');
         let currentVal = parseInt(select.value);
@@ -182,7 +187,8 @@
             let table = cost < 20000 ? ratesLow : ratesHigh;
             let currentRates = table[months] || table[Object.keys(table)[Object.keys(table).length - 1]];
             let estimatedTotal = cost + (cost * (currentRates.withV / 100));
-            document.getElementById('vznos').value = Math.round(estimatedTotal * 0.2); 
+            // Округление первоначального взноса кратно 50 ₽
+            document.getElementById('vznos').value = round50(Math.round(estimatedTotal * 0.2)); 
         } else { 
             vznosGroup.style.display = 'none'; 
             resVznosRow.style.display = 'none'; 
@@ -199,14 +205,10 @@
             let table = cost < 20000 ? ratesLow : ratesHigh;
             let currentRates = table[months] || table[Object.keys(table)[Object.keys(table).length - 1]];
             let estimatedTotal = cost + (cost * (currentRates.withV / 100));
-            document.getElementById('vznos').value = Math.round(estimatedTotal * 0.2); 
+            // Округление первоначального взноса кратно 50 ₽
+            document.getElementById('vznos').value = round50(Math.round(estimatedTotal * 0.2)); 
         } 
         calculate(); 
-    }
-    
-    function round50(val) { 
-        let remainder = val % 50; 
-        return remainder >= 25 ? val + (50 - remainder) : val - remainder; 
     }
     
     function calculate() {
@@ -225,7 +227,8 @@
             totalCost = cost + (cost * (effectivePercentForDisplay / 100));
         } else {
             let estimatedTotal = cost + (cost * (currentRates.withV / 100));
-            let standardVznos = Math.round(estimatedTotal * 0.2);
+            // Стандартный взнос рассчитывается с округлением кратно 50 ₽
+            let standardVznos = round50(Math.round(estimatedTotal * 0.2));
             let tolerance = cost < 20000 ? 1500 : 3000;
             
             if (Math.abs(vznos - standardVznos) <= tolerance) {
